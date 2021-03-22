@@ -3,7 +3,11 @@ import { SafeAreaView, StyleSheet, Text, StatusBar } from 'react-native';
 import _ from 'lodash';
 import * as Colors from '../../Constants/Colors';
 import * as Fonts from '../../Constants/Fonts';
-import { initSocketForChannel } from '../../Network/WS'
+import {
+  initTicker,
+  initTrades,
+  initOrderBook
+} from '../../Network/WS'
 import Accordion from './Components/Accordion';
 import TickerView from './Components/TickerView';
 import OrderBook from './Components/OrderBook';
@@ -46,12 +50,55 @@ const bookRequest = JSON.stringify({
   symbol: `t${currencyInfo.cryptoCurrency}${currencyInfo.currency}` //tBTCUSD 
 });
 
-const createTradesArray = (data) => {
-  // TODO
+const createTradesArray = (res) => {
+  try {
+    let dataObject = {};
+    const data = JSON.parse(res);
+    if (_.isArray(data)) {
+      dataObject = { 'channelId': data[0]};
+      const keys = [
+      'id',
+      'mts',
+      'amount',
+      'price',
+      ]
+      const channelData = {};
+      if (!_.isEmpty(data[2])) {
+        _.map(data[2], (value, index) => {
+          channelData[keys[index]] = value;
+        })
+      }
+      dataObject['channelData'] = channelData;
+      return [dataObject];
+    }
+  } catch (err) {
+    console.log('Error', err);
+  }
 }
 
-const createBookArray = (data) => {
-  // TODO
+const createBookArray = (res) => {
+  try {
+    let dataObject = {};
+    const data = JSON.parse(res);
+    if (_.isArray(data)) {
+      dataObject = { 'channelId': data[0]};
+      const keys = [
+      'price',
+      'count',
+      'amount',
+      ]
+      const channelData = {};
+      if (!_.isEmpty(data[1])) {
+        _.map(data[1], (value, index) => {
+          channelData[keys[index]] = value;
+        })
+      }
+      dataObject['channelData'] = channelData;
+      return [dataObject];
+    }
+  } catch (err) {
+    console.log('Error', err);
+  }
 }
 
 
@@ -96,9 +143,9 @@ const Trading = () => {
   const [orderBook, setOrderBook] = useState([]);
 
   useEffect(() => {
-    initSocketForChannel(tickerRequest, (data) => setTicker(createTickerObject(data)));
-    // initSocketForChannel(tradesRequest, (data) => setTrades(createTradesArray(data)));
-    // initSocketForChannel(bookRequest, (data) => setOrderBook(createBookArray(data)));
+    initTicker(tickerRequest, (data) => setTicker(createTickerObject(data)));
+    initTrades(tradesRequest, (data) => setTrades(createTradesArray(data)));
+    initOrderBook(bookRequest, (data) => setOrderBook(createBookArray(data)));
   }, []);
 
   return (
@@ -115,67 +162,19 @@ const Trading = () => {
           price={Math.round(ticker.channelData.lastPrice)}
           plPercentage={ticker.channelData.dailyChangeRelative}
         />)}
-        <Accordion title="ORDER">
-          <OrderBook orderData={tradesData}/>
-        </Accordion>
-        <Accordion title="TRADE">
-          <Trades tradeData={tradesData} />
-        </Accordion>
+        { !_.isEmpty(orderBook) && (
+          <Accordion title="ORDER">
+            <OrderBook orderData={orderBook}/>
+          </Accordion>
+        )}
+        { !_.isEmpty(trades) && (
+          <Accordion title="TRADE">
+            <Trades tradeData={trades} />
+          </Accordion>
+        )}
       </SafeAreaView>
     </React.Fragment>
   )
 }
-
-
-const tradesData = [
-  {
-    id: 1,
-    amount: 100,
-    price: 0.2065,
-    mst: 1616409966000,
-  },
-  {
-    id: 2,
-    amount: -100,
-    price: 0.2065,
-    mst: 1616409966000,
-  },
-  {
-    id: 3,
-    amount: -100,
-    price: 0.2065,
-    mst: 1616409966000,
-  },
-  {
-    id: 4,
-    amount: 100,
-    price: 0.2065,
-    mst: 1616409966000,
-  },
-  {
-    id: 5,
-    amount: 100,
-    price: 0.2065,
-    mst: 1616409966000,
-  },
-  {
-    id: 6,
-    amount: -100,
-    price: 0.2065,
-    mst: 1616409966000,
-  },
-  {
-    id: 7,
-    amount: 100,
-    price: 0.2065,
-    mst: 1616409966000,
-  },
-  {
-    id: 8,
-    amount: -100,
-    price: 0.2065,
-    mst: 1616409966000,
-  },
-];
 
 export default Trading
