@@ -16,7 +16,7 @@ const tickerSlice = createSlice({
     low: 0,
   },
   reducers: {
-    setTradeData(state, action) {
+    setTickerData(state, action) {
       const {
         symbol,
         bid,
@@ -47,6 +47,6 @@ const tickerSlice = createSlice({
 
 const { actions, reducer: tickerReducer } = tickerSlice;
 
-const { setTradeData } = actions;
+const { setTickerData } = actions;
 
-export { tickerReducer, setTradeData };
+export { tickerReducer, setTickerData };

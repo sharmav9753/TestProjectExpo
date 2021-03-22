@@ -14,7 +14,7 @@ import OrderBook from './Components/OrderBook';
 import Trades from './Components/Trades';
 import { useDispatch, useSelector } from 'react-redux';
 import {createSelector} from '@reduxjs/toolkit';
-import {listenForTicker} from '../../Reducers/actions'
+import {listenForTicker, listenForTrades} from '../../Reducers/actions'
 import ConnectivityToggle from "./Components/ConnectivityToggle";
 
 const styles = StyleSheet.create({
@@ -36,43 +36,12 @@ const currencyInfo = {
   cryptoCurrencyIcon: 'logo-bitcoin'
 }
 
-const tradesRequest = JSON.stringify({ 
-  event: 'subscribe', 
-  channel: 'trades', 
-  symbol: `t${currencyInfo.cryptoCurrency}${currencyInfo.currency}` //tBTCUSD 
-});
 
 const bookRequest = JSON.stringify({ 
   event: 'subscribe', 
   channel: 'book', 
   symbol: `t${currencyInfo.cryptoCurrency}${currencyInfo.currency}` //tBTCUSD 
 });
-
-const createTradesArray = (res) => {
-  try {
-    let dataObject = {};
-    const data = JSON.parse(res);
-    if (_.isArray(data)) {
-      dataObject = { 'channelId': data[0]};
-      const keys = [
-      'id',
-      'mts',
-      'amount',
-      'price',
-      ]
-      const channelData = {};
-      if (!_.isEmpty(data[2])) {
-        _.map(data[2], (value, index) => {
-          channelData[keys[index]] = value;
-        })
-      }
-      dataObject['channelData'] = channelData;
-      return [dataObject];
-    }
-  } catch (err) {
-    console.log('Error', err);
-  }
-}
 
 const createBookArray = (res) => {
   try {
@@ -103,19 +72,24 @@ const getVolume = (value, cryptoCurrency) => `${Math.round(value)} ${cryptoCurre
 
 const tickerSelector = createSelector(state => state.ticker, ticker => ticker)
 
+const tradesSelector = createSelector(state => state.trades.data, data => data)
+
 const Trading = () => {
   const ticker = useSelector(tickerSelector);
+  const trades = useSelector(tradesSelector);
   const dispatch = useDispatch();
 
-  // const [ticker, setTicker] = useState([]);
-  const [trades, setTrades] = useState([]);
   const [orderBook, setOrderBook] = useState([]);
 
   useEffect(() => {
     dispatch(listenForTicker());
-    initTrades(tradesRequest, (data) => setTrades(createTradesArray(data)));
+    dispatch(listenForTrades());
+    // initTrades(tradesRequest, (data) => setTrades(createTradesArray(data)));
     initOrderBook(bookRequest, (data) => setOrderBook(createBookArray(data)));
   }, []);
+
+
+  console.log(trades)
 
   return (
     <React.Fragment>

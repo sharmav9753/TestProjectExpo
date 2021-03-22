@@ -69,7 +69,7 @@ const OrderBook = ({orderData = []}) => {
   return (
     <FlatList
       data={orderData}
-      keyExtractor={(item) => item.ID}
+      keyExtractor={(item) => `${item.ID}`}
       ListHeaderComponent={<OrderBookHeader shouldShowHeader={orderData.length} />}
       renderItem={({ item }) => {
         return (

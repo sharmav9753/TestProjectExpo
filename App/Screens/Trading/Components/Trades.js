@@ -32,10 +32,10 @@ const Trades = ({tradeData = [] }) => {
     <View>
       <FlatList
         data={tradeData}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => `${item.id}`}
         ListHeaderComponent={<TradesHeader tradeData={tradeData} />}
         renderItem={({ item }) => {
-          const isNegative = item.channelData.amount > 0 ? false : true;
+          const isNegative = item.amount > 0 ? false : true;
           return (
             <View
               style={[
@@ -49,11 +49,11 @@ const Trades = ({tradeData = [] }) => {
                   size={14}
                   color={getIconColor(isNegative)}
                 />
-                <Text style={styles.rowText}>{getTimeInUTC(item.channelData.mts)}</Text>
+                <Text style={styles.rowText}>{getTimeInUTC(item.mts)}</Text>
               </View>
-              <Text style={[styles.column2, styles.rowText]}>{item.channelData.price}</Text>
+              <Text style={[styles.column2, styles.rowText]}>{item.price}</Text>
               <Text style={[styles.column3, styles.rowText]}>
-                {item.channelData.amount}
+                {item.amount}
               </Text>
             </View>
           );
