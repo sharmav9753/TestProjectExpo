@@ -8,3 +8,5 @@ export const orderGreen = "#89b439";
 export const orderRed = "#503136";
 export const tradeGreen = "#245E3F";
 export const tradeRed = "#70393F";
+export const backgroundGreen = '#1A4838';
+export const backgroundRed = '#503136';
