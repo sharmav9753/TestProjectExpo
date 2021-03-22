@@ -4,6 +4,7 @@ export const normal = 14;
 export const large = 16;
 export const larger = 19;
 export const largest = 22;
+export const xLargest = 26;
 
 export const thin = '100';
 export const ultraLight = '200';

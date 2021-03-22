@@ -34,8 +34,6 @@ const Accordion = ({ title, children }) => {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    backgroundColor: Colors.itemBackground,
     marginBottom: 10,
   },
   title: {

@@ -32,11 +32,11 @@ const styles = StyleSheet.create({
 });
 
 const getPLPercentageText = (plPercentage) => {
-  const text = `${Math.abs(plPercentage * 100)} %`;
+  const text = `${Math.abs(Number(plPercentage) * 100).toFixed(2)} %`;
   if (plPercentage < 0) {
-    return <Text style={[styles.text, styles.lossText]}>{text}</Text>;
+    return <Text style={[styles.text, styles.lossText]}>{`${text} ▼`}</Text>;
   } else {
-   return <Text style={[styles.text, styles.profitText]}>{text}</Text>;
+  return <Text style={[styles.text, styles.profitText]}>{`${text} ▲`}</Text>;
   }
 };
 

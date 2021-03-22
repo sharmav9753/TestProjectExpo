@@ -12,6 +12,10 @@ import Accordion from './Components/Accordion';
 import TickerView from './Components/TickerView';
 import OrderBook from './Components/OrderBook';
 import Trades from './Components/Trades';
+import { useDispatch, useSelector } from 'react-redux';
+import {createSelector} from '@reduxjs/toolkit';
+import {listenForTicker} from '../../Reducers/actions'
+import ConnectivityToggle from "./Components/ConnectivityToggle";
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -31,12 +35,6 @@ const currencyInfo = {
   currency: 'USD',
   cryptoCurrencyIcon: 'logo-bitcoin'
 }
-
-const tickerRequest = JSON.stringify({ 
-  event: 'subscribe', 
-  channel: 'ticker', 
-  symbol: `t${currencyInfo.cryptoCurrency}${currencyInfo.currency}` //tBTCUSD 
-});
 
 const tradesRequest = JSON.stringify({ 
   event: 'subscribe', 
@@ -101,49 +99,20 @@ const createBookArray = (res) => {
   }
 }
 
-
-
-const createTickerObject = (res) => {
-  try {
-    let dataObject = {};
-    const data = JSON.parse(res);
-    if (_.isArray(data)) {
-      dataObject = { 'channelId': data[0]};
-      const keys = [
-      'bid',
-      'bidSize',
-      'ask',
-      'askSize',
-      'dailyChange',
-      'dailyChangeRelative',
-      'lastPrice',
-      'volume',
-      'high',
-      'low',
-      ]
-      const channelData = {};
-      if (!_.isEmpty(data[1])) {
-        _.map(data[1], (value, index) => {
-          channelData[keys[index]] = value;
-        })
-      }
-      dataObject['channelData'] = channelData;
-      return dataObject;
-    }
-  } catch (err) {
-    console.log('Error', err);
-  }
-}
-
 const getVolume = (value, cryptoCurrency) => `${Math.round(value)} ${cryptoCurrency}`
 
+const tickerSelector = createSelector(state => state.ticker, ticker => ticker)
+
 const Trading = () => {
-  const [ticker, setTicker] = useState([]);
+  const ticker = useSelector(tickerSelector);
+  const dispatch = useDispatch();
+
+  // const [ticker, setTicker] = useState([]);
   const [trades, setTrades] = useState([]);
   const [orderBook, setOrderBook] = useState([]);
 
   useEffect(() => {
-    initTicker(tickerRequest, (data) => setTicker(createTickerObject(data)));
+    dispatch(listenForTicker());
     initTrades(tradesRequest, (data) => setTrades(createTradesArray(data)));
     initOrderBook(bookRequest, (data) => setOrderBook(createBookArray(data)));
   }, []);
@@ -152,15 +121,16 @@ const Trading = () => {
     <React.Fragment>
       <StatusBar style='auto' />
       <SafeAreaView style={styles.mainContainer}>
-      { !_.isEmpty(ticker) && (
-        <TickerView
-          name={`${currencyInfo.cryptoCurrency}/${currencyInfo.currency}`}
-          icon={currencyInfo.cryptoCurrencyIcon}
-          vol={getVolume(ticker.channelData.volume, currencyInfo.cryptoCurrency)}
-          high={ticker.channelData.high}
-          low={ticker.channelData.low}
-          price={Math.round(ticker.channelData.lastPrice)}
-          plPercentage={ticker.channelData.dailyChangeRelative}
+        <ConnectivityToggle />
+        { !_.isEmpty(ticker) && (
+          <TickerView
+            name={`${currencyInfo.cryptoCurrency}/${currencyInfo.currency}`}
+            icon={currencyInfo.cryptoCurrencyIcon}
+            vol={getVolume(ticker.volume, currencyInfo.cryptoCurrency)}
+            high={ticker.high}
+            low={ticker.low}
+            price={Math.round(ticker.lastPrice)}
+            plPercentage={ticker.dailyChangeRelative}
         />)}
         { !_.isEmpty(orderBook) && (
           <Accordion title="ORDER">
