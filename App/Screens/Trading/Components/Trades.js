@@ -6,7 +6,7 @@ import * as Colors from "../../../Constants/Colors";
 import * as Fonts from "../../../Constants/Fonts";
 
 
-const Trades = ({ tradeData = [] }) => {
+const Trades = ({tradeData = [] }) => {
   const getBackground = (isNegative) => {
     return isNegative ? Colors.tradeGreen : Colors.tradeRed;
   };
@@ -18,7 +18,7 @@ const Trades = ({ tradeData = [] }) => {
   };
 
   const getTimeInUTC = (time) => {
-    var dateTime = new Date(Number(time));
+    var dateTime = new Date(time);
     var formatted =
       `${dateTime.getHours()}`.padStart(2, 0) +
       ":" +
@@ -35,7 +35,7 @@ const Trades = ({ tradeData = [] }) => {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={<TradesHeader tradeData={tradeData} />}
         renderItem={({ item }) => {
-          const isNegative = item.amount > 0 ? false : true;
+          const isNegative = item.channelData.amount > 0 ? false : true;
           return (
             <View
               style={[
@@ -49,11 +49,11 @@ const Trades = ({ tradeData = [] }) => {
                   size={14}
                   color={getIconColor(isNegative)}
                 />
-                <Text style={styles.rowText}>{getTimeInUTC(item.mst)}</Text>
+                <Text style={styles.rowText}>{getTimeInUTC(item.channelData.mts)}</Text>
               </View>
-              <Text style={[styles.column2, styles.rowText]}>{item.price}</Text>
+              <Text style={[styles.column2, styles.rowText]}>{item.channelData.price}</Text>
               <Text style={[styles.column3, styles.rowText]}>
-                {item.amount}
+                {item.channelData.amount}
               </Text>
             </View>
           );
